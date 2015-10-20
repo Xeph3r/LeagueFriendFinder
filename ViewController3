@@ -1,0 +1,133 @@
+//
+//  ViewController3.swift
+//  LeagueFriendFinder
+//
+//  Created by Siddharth Malik on 2/23/15.
+//  Copyright (c) 2015 Siddharth Malik. All rights reserved.
+//
+
+import UIKit
+
+class ViewController3: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate  {
+
+    //implement a chat room prototype
+    
+    @IBOutlet weak var DockViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var MessageTextField: UITextField!
+    @IBOutlet weak var SendButton: UIButton!
+    @IBOutlet weak var ChatTableView: UITableView!
+    var MessagesArray:[String] = [String]()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        self.ChatTableView.delegate = self
+        self.ChatTableView.dataSource = self
+        self.MessageTextField.delegate = self
+        
+        let TapGesture:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "TableViewTapped")
+        self.ChatTableView.addGestureRecognizer(TapGesture)
+        self.retrieveMessages()
+        // Do any additional setup after loading the view.
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
+    //change the size of the text field upon starting to edit
+    
+    func textFieldDidBeginEditing(textField: UITextField) {
+        self.view.layoutIfNeeded()
+        UIView.animateWithDuration(0.5, animations: {
+            self.DockViewHeightConstraint.constant = 250
+            self.view.layoutIfNeeded()
+            
+            }, completion: nil)
+        
+    }
+    //retireve messages from parse
+    func retrieveMessages(){
+        var query:PFQuery = PFQuery(className: "Message")
+        query.findObjectsInBackgroundWithBlock { (objects:[AnyObject]!, error:NSError!) -> Void in
+            self.MessagesArray = [String]()
+            for messageObject in objects{
+                let messageText:String? = (messageObject as PFObject)["text"] as? String
+                if messageText != nil{
+                    self.MessagesArray.append(messageText!)
+                }
+            }
+            dispatch_async(dispatch_get_main_queue()){
+            self.ChatTableView.reloadData()
+            }
+        }
+        
+    }
+    
+    
+    
+    
+    func TableViewTapped(){
+        self.MessageTextField.endEditing(true)
+        
+    }
+    
+    //restore text view upon ending edit
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        self.view.layoutIfNeeded()
+        UIView.animateWithDuration(0.5, animations: {
+            self.DockViewHeightConstraint.constant = 60
+            self.view.layoutIfNeeded()
+            
+            }, completion: nil)
+        
+    }
+    
+    //add and save the sent message to the parse class and allow it to be reloaded
+    
+    @IBAction func SendButtonTapped(sender: UIButton) {
+        self.MessageTextField.endEditing(true)
+        self.MessageTextField.enabled = false
+        self.SendButton.enabled = false
+        var newMessageObject:PFObject = PFObject(className: "Message")
+        newMessageObject["text"] = self.MessageTextField.text
+        newMessageObject.saveInBackgroundWithBlock { (success:Bool, error:NSError!) -> Void in
+            if(success == true){
+                self.retrieveMessages()
+            }
+            else{
+              NSLog(error.description)
+            }
+        }
+        dispatch_async(dispatch_get_main_queue()){
+        self.SendButton.enabled = true
+        self.MessageTextField.enabled = true
+        self.MessageTextField.text = ""
+        }
+    }
+    
+    // important fucntions for the table view itself and cell initializers.
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = self.ChatTableView.dequeueReusableCellWithIdentifier("ChatCell") as UITableViewCell
+        cell.textLabel?.text = self.MessagesArray[indexPath.row]
+        return cell
+    }
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return MessagesArray.count
+    }
+    
+    
+    /*
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Get the new view controller using segue.destinationViewController.
+        // Pass the selected object to the new view controller.
+    }
+    */
+
+}
