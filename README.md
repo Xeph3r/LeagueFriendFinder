@@ -36,4 +36,6 @@ in a very beautiful display. It also handles sending your information to those y
 lobby, and utilizes functions to manage all this. A function here also assigns portraits based on the recieved 
 champion and class integers from the parse database servers.
 
-The rest of the files are not as important as these, and are available to view in the zip file.
+The rest of the files are not as important as these, and are available to view in the zip file. This app was created
+with the notion that simple things could accomplish difficult tasks, and as such i created the entire thing using
+simple functions and loops, utilizing the Parse Backend service to store and manage data.
