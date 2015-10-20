@@ -1,0 +1,165 @@
+//
+//  ViewController1.swift
+//  LeagueFriendFinder
+//
+//  Created by Siddharth Malik on 2/23/15.
+//  Copyright (c) 2015 Siddharth Malik. All rights reserved.
+//
+
+import UIKit
+import iAd
+
+
+
+class ViewController1: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate, ADBannerViewDelegate {
+    
+    var nameContainer = String()
+    var rankholder = Int()
+    
+    //Initialize all variables and connections
+    
+    @IBOutlet weak var UserImage: UIImageView!
+
+    @IBOutlet weak var Username: UITextField!
+    @IBOutlet weak var AdBanner: ADBannerView!
+    @IBOutlet weak var RankPicker: UIPickerView!
+    let Pickerdata = ["Unranked", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Master", "Challenger"]
+    var images = [UIImage(named:"unranked")!,UIImage(named:"bronze")!,UIImage(named:"silver")!,UIImage(named:"gold")!,UIImage(named:"platinum")!,UIImage(named:"diamond")!,UIImage(named:"master")!,UIImage(named:"challenger")!]
+    
+    //Use these arrays to load data into the picker view
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        
+        RankPicker.delegate = self
+        RankPicker.dataSource = self
+    
+        
+        Username.adjustsFontSizeToFitWidth = true
+        Username.minimumFontSize = 7
+        
+        AdBanner.hidden = true
+        AdBanner.delegate = self
+        self.canDisplayBannerAds = true
+        
+        //Initialize ads
+            // Do any additional setup after loading the view.
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        
+        
+        
+        // Dispose of any resources that can be recreated.
+    }
+    func bannerView(banner: ADBannerView!, didFailToReceiveAdWithError error: NSError!) {
+        NSLog("AD ERROR")
+    }
+    func bannerViewActionShouldBegin(banner: ADBannerView!, willLeaveApplication willLeave: Bool) -> Bool {
+       return true
+    }
+    func bannerViewWillLoadAd(banner: ADBannerView!) {
+    }
+    func bannerViewDidLoadAd(banner: ADBannerView!) {
+        AdBanner.hidden = false
+    }
+    
+   
+    
+    
+    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return Pickerdata.count
+    }
+    
+    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String!{
+        return Pickerdata[row]
+    }
+    func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView!) -> UIView {
+        let image =  images[row]
+        let imageView = UIImageView(image: image)
+        imageView.alpha = 0.7
+        imageView.bounds = CGRectMake(0, 0, 150, 29)
+        
+        return imageView
+    }
+  
+    @IBAction func textFieldDoneEditing(sender: UITextField){
+        sender.resignFirstResponder()
+        
+    }
+    @IBAction func backgroundTap(sender: UIControl) {
+        Username.resignFirstResponder()
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        //save all data quickly and transition
+        let quickSave = PFObject(className:"Quicksave")
+        quickSave["name"] = Username.text
+        quickSave["rank"] = RankPicker.selectedRowInComponent(0)
+        quickSave.pinInBackground()
+        
+        let onlineSave = PFObject(className:"onlinesave")
+        
+        onlineSave["name"] = Username.text
+        onlineSave["rank"] = RankPicker.selectedRowInComponent(0)
+        onlineSave.saveInBackground()
+        
+        
+        
+    }
+    override func viewDidAppear(animated: Bool) {
+     //create a loading function from the local datastore
+       var query = PFQuery(className: "Quicksave")
+       query.fromLocalDatastore()
+       query.findObjectsInBackgroundWithBlock{(Objects: [AnyObject]!, error:NSError!) -> Void in
+        var nameholder = String()
+        var rankholder = Int()
+        for givenStuff in Objects{
+         //   let nameContainer: String = (givenStuff as PFObject)["name"] as String
+         //   let rankholder: Int = (givenStuff as PFObject)["rank"] as Int
+            
+            self.nameContainer = givenStuff.valueForKey("name") as String
+            rankholder = givenStuff.valueForKey("rank") as Int
+            self.Username.text = self.nameContainer
+            self.RankPicker.selectRow(rankholder, inComponent: 0, animated: true)
+            
+        
+            
+        }
+        //PFObject.unpinAllObjectsInBackground()
+        }
+
+        
+           
+        
+        
+        
+        
+    }
+    
+    // MARK: - Navigation
+/*
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        // Get the new view controller using segue.destinationViewController.
+        var preparer: UITabBarController = segue.destinationViewController as UITabBarController
+        var sendtosecond: ViewController2 = preparer.viewControllers![1] as ViewController2
+        // Pass the selected object to the new view controller.
+        
+        sendtosecond.TheUser = Username.text
+        sendtosecond.chosenRank = RankPicker.selectedRowInComponent(0)
+        NSLog("TransferSuccessful")
+        
+    }
+
+*/
+    
+    
+}
