@@ -1,0 +1,234 @@
+//
+//  ViewController2.swift
+//  LeagueFriendFinder
+//
+//  Created by Siddharth Malik on 2/23/15.
+//  Copyright (c) 2015 Siddharth Malik. All rights reserved.
+//
+
+import UIKit
+import iAd
+import CoreLocation
+import CoreData
+
+
+class ViewController2: UIViewController,UIPickerViewDataSource, UIPickerViewDelegate, ADBannerViewDelegate, CLLocationManagerDelegate {
+    
+    
+    var TheUser = String()
+    var chosenRank = Int()
+    var nameContainer = String()
+    var rankCurrent = Int()
+    
+    
+    @IBOutlet weak var AdSecond: ADBannerView!
+    var images = [UIImage(named:"FillRanked"),UIImage(named:"ADC"), UIImage(named:"Jungle"),UIImage(named:"Support"),UIImage(named:"Top"), UIImage(named:"Mid")]
+    
+    //Initialize the array for all the images
+    
+    let imageSecond = [UIImage(named:"FillRanked"), UIImage(named:"Aatrox"), UIImage(named:"Ahri"), UIImage(named:"Akali"), UIImage(named:"Alistar"), UIImage(named:"Amumu"), UIImage(named:"Anivia"), UIImage(named:"Annie"), UIImage(named:"Ashe"), UIImage(named:"Azir"), UIImage(named:"Bard"), UIImage(named:"Blitzcrank"), UIImage(named:"Brand"), UIImage(named:"Braum"), UIImage(named:"Caitlyn"), UIImage(named:"Cassiopeia"), UIImage(named:"Chogath"), UIImage(named:"Corki"), UIImage(named:"Darius"), UIImage(named:"Diana"), UIImage(named:"DrMundo"), UIImage(named:"Draven"), UIImage(named:"Ekko"), UIImage(named:"Elise"), UIImage(named:"Evelynn"), UIImage(named:"Ezreal"), UIImage(named:"FiddleSticks"), UIImage(named:"Fiora"), UIImage(named:"Fizz"), UIImage(named:"Galio"), UIImage(named:"Gangplank"), UIImage(named:"Garen"), UIImage(named:"Gnar"), UIImage(named:"Gragas"), UIImage(named:"Graves"), UIImage(named:"Hecarim"), UIImage(named:"Heimerdinger"), UIImage(named:"Irelia"), UIImage(named:"Janna"), UIImage(named:"JarvanIV"), UIImage(named:"Jax"), UIImage(named:"Jayce"), UIImage(named:"Jinx"), UIImage(named:"Kalista"), UIImage(named:"Karma"), UIImage(named:"Karthus"), UIImage(named:"Kassadin"), UIImage(named:"Katarina"), UIImage(named:"Kayle"), UIImage(named:"Kennen"), UIImage(named:"Khazix"), UIImage(named:"KogMaw"), UIImage(named:"Leblanc"), UIImage(named:"LeeSin"), UIImage(named:"Leona"), UIImage(named:"Lissandra"), UIImage(named:"Lucian"), UIImage(named:"Lulu"), UIImage(named:"Lux"), UIImage(named:"Malphite"), UIImage(named:"Malzahar"), UIImage(named:"Maokai"), UIImage(named:"MasterYi"), UIImage(named:"MissFortune"), UIImage(named:"MonkeyKing"), UIImage(named:"Mordekaiser"), UIImage(named:"Morgana"), UIImage(named:"Nami"), UIImage(named:"Nasus"), UIImage(named:"Nautilus"), UIImage(named:"Nidalee"), UIImage(named:"Nocturne"), UIImage(named:"Nunu"), UIImage(named:"Olaf"), UIImage(named:"Orianna"), UIImage(named:"Pantheon"), UIImage(named:"Poppy"), UIImage(named:"Quinn"), UIImage(named:"Rammus"), UIImage(named:"RekSai"), UIImage(named:"Renekton"), UIImage(named:"Rengar"), UIImage(named:"Riven"), UIImage(named:"Rumble"), UIImage(named:"Ryze"), UIImage(named:"Sejuani"), UIImage(named:"Shaco"), UIImage(named:"Shen"), UIImage(named:"Shyvana"),UIImage(named:"Singed"), UIImage(named:"Sion"), UIImage(named:"Sivir"), UIImage(named:"Skarner"), UIImage(named:"Sona"), UIImage(named:"Soraka"), UIImage(named:"Swain"), UIImage(named:"Syndra"), UIImage(named:"TahmKench"), UIImage(named:"Talon"), UIImage(named:"Taric"), UIImage(named:"Teemo"), UIImage(named:"Thresh"), UIImage(named:"Tristana"), UIImage(named:"Trundle"), UIImage(named:"Tryndamere"), UIImage(named:"TwistedFate"),UIImage(named:"Twitch"), UIImage(named:"Udyr"), UIImage(named:"Urgot"), UIImage(named:"Varus"), UIImage(named:"Vayne"), UIImage(named:"Veigar"), UIImage(named:"Velkoz"), UIImage(named:"Vi"), UIImage(named:"Viktor"), UIImage(named:"Vladimir"), UIImage(named:"Volibear"), UIImage(named:"Warwick"), UIImage(named:"Xerath"), UIImage(named:"XinZhao"), UIImage(named:"Yasuo"), UIImage(named:"Yorick"), UIImage(named:"Zac"), UIImage(named:"Zed"), UIImage(named:"Ziggs"), UIImage(named:"Zilean"),
+        UIImage(named:"Zyra")]
+    
+    let Champdata = ["fillRanked", "Aatrox", "Ahri", "Akali", "Alistar", "Amumu", "Anivia", "Annie", "Ashe", "Azir", "Bard", "Blitzcrank", "Brand", "Braum", "Cailtyn", "Cassiopeia", "Chogath", "Corki", "Darius", "Diana", "DrMundo", "Draven", "Ekko", "Elise", "Evelynn", "Ezreal", "Fiddlesticks", "Fiora", "Fizz", "Galio", "Gangplank", "Garen", "Gnar", "Gragas", "Graves", "Hecarim", "Heimerdinger", "Irelia", "Janna", "JarvanIV", "Jax", "Jayce", "Jinx", "Kalista", "Karma", "Karthus", "Kassadin", "Katarina", "kayle", "Kennen", "Khazix", "KogMaw", "Leblanc", "Leesin", "Leona", "Lissandra", "Lucian", "Lulu", "Lux", "Malphite", "Malzahar", "Maokai", "MasterYi", "MissFortune", "MonkeyKing", "Mordekaiser", "Morgana", "Nami", "Nasus", "Nautilus", "Nidalee", "Nocturne", "Nunu", "Olaf", "Orianna", "Pantheon", "Poppy", "Quinn", "Rammus", "RekSai", "Renekton", "Rengar", "Riven", "Rumble", "Ryze", "Sejuani", "Shaco", "Shen", "Shyvana","Singed","Sion", "Sivir", "Skarner", "Sona", "Soraka", "Swain", "Syndra", "TahmKench", "Talon", "Taric", "Teemo", "Thresh", "Tristana", "Trundle", "Tryndamere", "TwistedFate", "Twitch", "Udyr", "Urgot", "Varus", "Vayne", "Veigar", "Velkoz", "Vi", "Victor", "Vladimir", "Volibear", "Warwick", "Xerath", "XinZhao", "Yasuo", "Yorick", "Zac", "Zed", "Ziggs", "Zilean", "Zyra"]
+
+    let Pickerdata = ["fillRanked","graves", "jarvan", "janna", "riven", "leblanc"]
+    
+    //Initialize the rest of the variables
+    
+    @IBOutlet weak var searchMatches: UIButton!
+    
+    @IBOutlet weak var ChampionChoice: UIPickerView!
+    @IBOutlet weak var classChoice: UIPickerView!
+    @IBOutlet weak var QueueType: UISegmentedControl!
+    
+    var nameholder = String()
+    var rankholder = Int()
+    
+    var normalNameHolder = String()
+    var normalRankHolder = Int()
+    
+    let locationManager = CLLocationManager()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        classChoice.delegate = self
+        classChoice.dataSource = self
+        
+        ChampionChoice.delegate = self
+        ChampionChoice.dataSource = self
+        
+        searchMatches.layer.cornerRadius = 5
+        
+        // activate the location managers
+        
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+        
+        let point = PFGeoPoint()
+        
+        //retrieve the current users information from the local datastore
+      
+        var query = PFQuery(className: "Quicksave")
+        query.fromLocalDatastore()
+        query.findObjectsInBackgroundWithBlock{(Objects: [AnyObject]!, error:NSError!) -> Void in
+            
+            for givenStuff in Objects{
+                //let nameContainer: String = (givenStuff as PFObject)["name"] as String
+                //let rankCurrent: Int = (givenStuff as PFObject)["rank"] as Int
+                
+                self.nameholder = givenStuff.valueForKey("name") as String
+                
+                self.rankholder = givenStuff.valueForKey("rank") as Int
+                
+            }
+        
+            
+        }
+        //testing purposes
+        println("value of datastore name " + nameholder)
+/*
+        var onlinequery = PFQuery(className: "onlinesave")
+        onlinequery.findObjectsInBackgroundWithBlock{(Objects: [AnyObject]!, error:NSError!) -> Void in
+            
+            for object in Objects{
+                //let nameContainer: String = (givenStuff as PFObject)["name"] as String
+                //let rankCurrent: Int = (givenStuff as PFObject)["rank"] as Int
+                self.nameContainer = object.valueForKey("name") as String
+                
+                self.rankCurrent = object.valueForKey("rank") as Int
+                self.nameholder = self.nameContainer
+                self.rankholder = self.rankCurrent
+                
+            }
+            
+            
+        }
+        */
+        
+        
+        
+                // Do any additional setup after loading the view.
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    func bannerView(banner: ADBannerView!, didFailToReceiveAdWithError error: NSError!) {
+        NSLog("ERROR")
+    }
+    func bannerViewActionShouldBegin(banner: ADBannerView!, willLeaveApplication willLeave: Bool) -> Bool {
+        return true
+    }
+    func bannerViewWillLoadAd(banner: ADBannerView!) {
+    }
+    
+    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if pickerView == classChoice{
+            return Pickerdata.count
+        }
+        else{
+            return Champdata.count
+        }
+    }
+    
+    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String!
+    {
+    if pickerView == classChoice{
+        return Pickerdata[row]
+    }
+    else{
+    return Champdata[row]
+    }
+    }
+    
+    func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView!) -> UIView {
+        
+        if pickerView == classChoice{
+        let image =  images[row]
+        let imageView = UIImageView(image: image)
+        imageView.bounds = CGRectMake(0, 0, 300, 25)
+            return imageView
+        }
+        else {
+            let image = imageSecond[row]
+            let imageView = UIImageView(image: image)
+            imageView.bounds = CGRectMake(0,0,300,25)
+            return imageView
+        }
+            
+    }
+    
+    @IBAction func searchMatches(sender: AnyObject) {
+        
+        //search form matches based on a selected queue
+       
+        let point = PFGeoPoint()
+        
+        
+         if QueueType.selectedSegmentIndex == 0{
+            let location = PFObject(className: "locationNew")
+            location["location"] = point
+            location["Champion"] = ChampionChoice.selectedRowInComponent(0)
+            location["Class"] = classChoice.selectedRowInComponent(0)
+            location["User"] = nameholder
+            location["Rank"] = rankholder
+            location.saveInBackground()
+        }
+        else if QueueType.selectedSegmentIndex == 1{
+            let location = PFObject(className: "locationNormal")
+            location["location"] = point
+            location["Champion"] = ChampionChoice.selectedRowInComponent(0)
+            location["Class"] = classChoice.selectedRowInComponent(0)
+            location["User"] = nameholder
+            location["Rank"] = rankholder
+            location.saveInBackground()
+        }
+        else if QueueType.selectedSegmentIndex == 2{
+            let location = PFObject(className: "locationAram")
+            location["location"] = point
+            location["Champion"] = ChampionChoice.selectedRowInComponent(0)
+            location["Class"] = classChoice.selectedRowInComponent(0)
+            location["User"] = nameholder
+            location["Rank"] = rankholder
+            location.saveInBackground()
+        }
+        else  {
+            let location = PFObject(className: "location3v3")
+            location["location"] = point
+            location["Champion"] = ChampionChoice.selectedRowInComponent(0)
+            location["Class"] = classChoice.selectedRowInComponent(0)
+            location["User"] = nameholder
+            location["Rank"] = rankholder
+            location.saveInBackground()
+        }
+
+      
+    }
+
+    //send some information over to the next viewcontroller
+    
+    
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Get the new view controller using segue.destinationViewController.
+        var destination: ViewController4 = segue.destinationViewController as ViewController4
+        // Pass the selected object to the new view controller.
+        destination.selectedClass = classChoice.selectedRowInComponent(0)
+        destination.selectedChampion = ChampionChoice.selectedRowInComponent(0)
+        destination.selectedQueue = QueueType.selectedSegmentIndex
+        destination.UserName = nameholder
+        
+    }
+
+
+}
