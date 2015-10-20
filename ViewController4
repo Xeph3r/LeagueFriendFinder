@@ -1,0 +1,857 @@
+//
+//  ViewController4.swift
+//  LeagueFriendFinder
+//
+//  Created by Siddharth Malik on 8/16/15.
+//  Copyright (c) 2015 Siddharth Malik. All rights reserved.
+//
+
+import UIKit
+import CoreLocation
+
+class ViewController4: UIViewController, UITableViewDelegate, UITableViewDataSource  {
+    
+    //Initialize all variables to be used to store matchmaking data
+    @IBOutlet weak var Matches: UITableView!
+
+    var selectedChampion = Int()
+    var selectedClass = Int()
+    var selectedQueue = Int()
+    var list = NSArray()
+    var FirstHolder = Int()
+    var SecondHolder = Int()
+    var ThirdHolder = Int()
+    var FourthHolder = Int()
+    //var FirstName = String()
+    //var SecondName = String()
+    //var ThirdName = String()
+    //var FourthName = String()
+    var FirstImage = UIImage()
+    var SecondImage = UIImage()
+    var ThirdImage = UIImage()
+    var FourthImage = UIImage()
+    var SelfImage = UIImage()
+    var UserName = String()
+    var FirstGeneratedMatchName = String()
+    var FirstGeneratedMatchClass = Int()
+    var FirstGeneratedMatchChampion = Int()
+    var GeneratedMatchNumber = Int()
+    var SecondGeneratedMatchName = String()
+    var SecondGeneratedMatchClass = Int()
+    var SecondGeneratedMatchChampion = Int()
+    var ThirdGeneratedMatchName = String()
+    var ThirdGeneratedMatchClass = Int()
+    var ThirdGeneratedMatchChampion = Int()
+    var FourthGeneratedMatchName = String()
+    var FourthGeneratedMatchClass = Int()
+    var FourthGeneratedMatchChampion = Int()
+    
+    var nameArray:[String] = [String]()
+    
+    
+    
+    /*
+    var GeneratedMatch = PFObject()
+    var FirstGeneratedMatchHolder = PFObject()
+    var SecondGeneratedMatchHolder = PFObject()
+    var ThirdGeneratedMatchHolder = PFObject()
+    var FourthGeneratedMatchHolder = PFObject()
+*/
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // testing for segue functionality
+        
+        println("Value of Username" + UserName)
+        if selectedQueue == 1{
+        
+        // since the selected queue is one, choose the locationNormal class to search through.
+            
+        var locationQuery = PFQuery(className: "locationNormal")
+        locationQuery.whereKey("location", nearGeoPoint: PFGeoPoint())
+        var list = locationQuery.findObjects()
+        println(list.count)
+        //var locatedPeople = locationQuery.findObjects()
+        //list = locatedPeople
+            var counter = 0
+            // find users and save them into the initialized data
+            
+        locationQuery.findObjectsInBackgroundWithBlock({(Objects: [AnyObject]!, error: NSError!) -> Void in
+            if error == nil{
+                var printerino = Objects.count
+                println(printerino)
+                if let Objects = Objects as? [PFObject]{
+                    for Object in Objects{
+                        if Object.valueForKey("Class") as Int != self.selectedClass && counter == 0{
+                            var FirstPerson = Object
+                            self.FirstHolder = Object.valueForKey("Class") as Int
+                            println(self.FirstHolder)
+                            let FirstName = Object.valueForKey("User") as String
+                            println("the name is" + FirstName)
+                            counter = counter + 1
+                            NSLog("FirstMatch found")
+                            // send data back so other users can find this user
+                            var ReturnToSender = PFObject(className: "ReturnToSenderNormal")
+                            ReturnToSender["originalUser"] = FirstName
+                            ReturnToSender["matchedUser"] = self.UserName
+                            ReturnToSender["matchedClass"] = self.selectedClass
+                            ReturnToSender["matchedChampion"] = self.selectedChampion
+                            ReturnToSender.saveInBackground()
+                             
+                        }
+                        // repeat as required for more users for matchmaking
+                        
+                        if Object.valueForKey("Class") as Int != self.selectedClass && Object.valueForKey("Class") as Int != self.FirstHolder && counter == 1{
+                            var SecondPerson = Object
+                            self.SecondHolder = Object.valueForKey("Class") as Int
+                            counter = counter + 1
+                            let SecondName = Object.valueForKey("User") as String
+                            NSLog("Second Match Found")
+                            var ReturnToSender = PFObject(className: "ReturnToSenderNormal")
+                            ReturnToSender["originalUser"] = SecondName
+                            ReturnToSender["matchedUser"] = self.UserName
+                            ReturnToSender["matchedClass"] = self.selectedClass
+                            ReturnToSender["matchedChampion"] = self.selectedChampion
+                            ReturnToSender.saveInBackground()
+                        }
+                        if Object.valueForKey("Class") as Int != self.selectedClass && Object.valueForKey("Class") as Int != self.FirstHolder && Object.valueForKey("Class") as Int != self.SecondHolder && counter == 2{
+                            var ThirdPerson = Object
+                            self.ThirdHolder = Object.valueForKey("Class") as Int
+                            let ThirdName = Object.valueForKey("User") as String
+                            counter = counter + 1
+                            NSLog("3rd Match found")
+                            var ReturnToSender = PFObject(className: "ReturnToSenderNormal")
+                            ReturnToSender["originalUser"] = ThirdName
+                            ReturnToSender["matchedUser"] = self.UserName
+                            ReturnToSender["matchedClass"] = self.selectedClass
+                            ReturnToSender["matchedChampion"] = self.selectedChampion
+                            ReturnToSender.saveInBackground()
+                        }
+                        if Object.valueForKey("Class") as Int != self.selectedClass && Object.valueForKey("Class") as Int != self.FirstHolder && Object.valueForKey("Class") as Int != self.SecondHolder &&
+                            Object.valueForKey("Class") as Int != self.ThirdHolder && counter == 3{
+                                var FourthPerson = Object
+                                self.FourthHolder = Object.valueForKey("Class") as Int
+                                let FourthName = Object.valueForKey("User") as String
+                                counter = counter + 1
+                                NSLog("Last Match Found")
+                                var ReturnToSender = PFObject(className: "ReturnToSenderNormal")
+                                ReturnToSender["originalUser"] = FourthName
+                                ReturnToSender["matchedUser"] = self.UserName
+                                ReturnToSender["matchedClass"] = self.selectedClass
+                                ReturnToSender["matchedChampion"] = self.selectedChampion
+                                ReturnToSender.saveInBackground()
+                        }
+                        else {
+                            NSLog("NO AVAILABLE MATCHES FOR MATCHMAKING")
+                            // while loop makes cells loading and restarts search
+                        }
+                        
+                    }
+                }
+                
+                    
+                }
+            
+            else{
+                    NSLog("Somethings Wrong")
+                }
+            })
+            
+        }
+        
+        // once above code is without failures implement into the other queues.
+        
+        if selectedQueue == 2{
+            var locationQuery = PFQuery(className: "locationAram")
+            locationQuery.whereKey("location", nearGeoPoint: PFGeoPoint())
+            locationQuery.limit = 20
+            var locatedPeople = locationQuery.findObjects()
+            list = locatedPeople
+            
+        }
+        if selectedQueue == 3{
+            var locationQuery = PFQuery(className: "location3v3")
+            locationQuery.whereKey("location", nearGeoPoint: PFGeoPoint())
+            locationQuery.limit = 20
+            var locatedPeople = locationQuery.findObjects()
+            list = locatedPeople
+                    }
+       NSLog("FinishedLooperino")
+        // Do any additional setup after loading the view.
+    
+    }
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 4
+    }
+    
+    //Queue already handled, make the table for the team. use class selection
+    // depending on other classes, initialize cells to hold other users.
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        if selectedClass == 0 {
+            var cell = tableView.dequeueReusableCellWithIdentifier("MatchCell") as UITableViewCell
+            cell.textLabel?.text = "In Progress"
+            return cell
+        }
+        else if selectedClass == 1 {
+            var cell = tableView.dequeueReusableCellWithIdentifier("MatchCell") as UITableViewCell
+            return cell
+        }
+        else if selectedClass == 2 {
+            var cell = tableView.dequeueReusableCellWithIdentifier("MatchCell") as UITableViewCell
+            return cell
+        }
+        else if selectedClass == 3 {
+            var cell = tableView.dequeueReusableCellWithIdentifier("MatchCell") as UITableViewCell
+            return cell
+        }
+        else if selectedClass == 4 {
+            var cell = tableView.dequeueReusableCellWithIdentifier("MatchCell") as UITableViewCell
+            return cell
+        }
+        else {
+            var cell = tableView.dequeueReusableCellWithIdentifier("MatchCell") as UITableViewCell
+            return cell
+        }
+    }
+    
+    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+        
+    }
+    
+    // this function will search for possible matches that were generated previously, to return the match made by the previous search so as to not create duplicate 
+    
+    func searchForPossibleMatchesNormals(currentUser: String) -> Int{
+        var query = PFQuery(className: "ReturnToSenderNormal")
+        query.findObjectsInBackgroundWithBlock{(Objects: [AnyObject]!, error: NSError!) -> Void in
+            if error == nil{
+                for object in Objects{
+                    if object.valueForKey("originalUser") as String == self.UserName{
+                        self.FirstGeneratedMatchName = object.valueForKey("matchedUser") as String
+                        self.FirstGeneratedMatchClass = object.valueForKey("matchedClass") as Int
+                        self.FirstGeneratedMatchChampion = object.valueForKey("matchedChampion") as Int
+                        self.GeneratedMatchNumber = 1
+                        self.nameArray.append(self.FirstGeneratedMatchName)
+                        query.findObjectsInBackgroundWithBlock{(Objects: [AnyObject]!, error: NSError!) -> Void in
+                            if error == nil{
+                                for object in Objects{
+                                    if object.valueForKey("originalUser") as String == self.UserName{
+                                        self.SecondGeneratedMatchName = object.valueForKey("matchedUser") as String
+                                        self.SecondGeneratedMatchClass = object.valueForKey("matchedClass") as Int
+                                        self.SecondGeneratedMatchChampion = object.valueForKey("matchedChampion") as Int
+                                        self.GeneratedMatchNumber = 2
+                                        self.nameArray.append(self.SecondGeneratedMatchName)
+                                        query.findObjectsInBackgroundWithBlock{(Objects: [AnyObject]!, error: NSError!) -> Void in
+                                            if error == nil{
+                                                for object in Objects{
+                                                    if object.valueForKey("originalUser") as String == self.UserName{
+                                                        self.ThirdGeneratedMatchName = object.valueForKey("matchedUser") as String
+                                                        self.ThirdGeneratedMatchClass = object.valueForKey("matchedClass") as Int
+                                                        self.ThirdGeneratedMatchChampion = object.valueForKey("matchedChampion") as Int
+                                                        self.GeneratedMatchNumber = 3
+                                                        self.nameArray.append(self.ThirdGeneratedMatchName)
+                                                        query.findObjectsInBackgroundWithBlock{(Objects: [AnyObject]!, error: NSError!) -> Void in
+                                                            if error == nil{
+                                                                for object in Objects{
+                                                                    if object.valueForKey("originalUser") as String == self.UserName{
+                                                                        self.FourthGeneratedMatchName = object.valueForKey("matchedUser") as String
+                                                                        self.FourthGeneratedMatchClass = object.valueForKey("matchedClass") as Int
+                                                                        self.FourthGeneratedMatchChampion = object.valueForKey("matchedChampion") as Int
+                                                                        self.GeneratedMatchNumber = 4
+                                                                        self.nameArray.append(self.FourthGeneratedMatchName)
+                                                                        
+                                                                        
+                                                                    }
+                                                                }
+                                                                
+                                                            }
+                                                            else{
+                                                                NSLog("error in Matching ")
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+                                                
+                                            }
+                                            else{
+                                                NSLog("error in Matching ")
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                                
+                            }
+                            else{
+                                NSLog("error in Matching ")
+                            }
+
+                        }
+                        
+                    }
+                }
+                
+            }
+            else{
+               NSLog("error in Matching ")
+            }
+
+        }
+        
+        if self.GeneratedMatchNumber == 4{
+            
+            return 4
+        }
+        else if self.GeneratedMatchNumber == 3{
+            
+            return 3
+        }
+        else if self.GeneratedMatchNumber  == 2{
+            
+            return 2
+        }
+        else if self.GeneratedMatchNumber  == 1{
+            
+            return 1
+        }
+        else{
+            
+            return 0
+        }
+
+       
+    }
+    
+    // this function will assign a champion image given the users integer value for their champion.
+    
+    //when ready call this during the cell creator.
+    
+    func GetChampion(SelectedClass: Int) -> UIImage{
+        if SelectedClass == 0{
+            var Image: UIImage = UIImage(named: "FillRanked")!
+            return Image
+        }
+        if SelectedClass == 1{
+            var Image: UIImage = UIImage(named: "Aatrox")!
+            return Image
+        }
+        if SelectedClass == 2{
+            var Image: UIImage = UIImage(named: "Ahri")!
+            return Image
+        }
+        if SelectedClass == 3{
+            var Image: UIImage = UIImage(named: "Akali")!
+            return Image
+        }
+        if SelectedClass == 4{
+            var Image: UIImage = UIImage(named: "Alistar")!
+            return Image
+        }
+        if SelectedClass == 5{
+            var Image: UIImage = UIImage(named: "Amumu")!
+            return Image
+        }
+        if SelectedClass == 6{
+            var Image: UIImage = UIImage(named: "Anivia")!
+            return Image
+        }
+        if SelectedClass == 7{
+            var Image: UIImage = UIImage(named: "Annie")!
+            return Image
+        }
+        if SelectedClass == 8{
+            var Image: UIImage = UIImage(named: "Ashe")!
+            return Image
+        }
+        if SelectedClass == 9{
+            var Image: UIImage = UIImage(named: "Azir")!
+            return Image
+        }
+        if SelectedClass == 10{
+            var Image: UIImage = UIImage(named: "Bard")!
+            return Image
+        }
+        if SelectedClass == 11{
+            var Image: UIImage = UIImage(named: "Blitzcrank")!
+            return Image
+        }
+        if SelectedClass == 12{
+            var Image: UIImage = UIImage(named: "Brand")!
+            return Image
+        }
+        if SelectedClass == 13{
+            var Image: UIImage = UIImage(named: "Braum")!
+            return Image
+        }
+        if SelectedClass == 14{
+            var Image: UIImage = UIImage(named: "Caitlyn")!
+            return Image
+        }
+        if SelectedClass == 15{
+            var Image: UIImage = UIImage(named: "Cassiopeia")!
+            return Image
+        }
+        if SelectedClass == 16{
+            var Image: UIImage = UIImage(named: "Chogath")!
+            return Image
+        }
+        if SelectedClass == 17{
+            var Image: UIImage = UIImage(named: "Corki")!
+            return Image
+        }
+        if SelectedClass == 18{
+            var Image: UIImage = UIImage(named: "Darius")!
+            return Image
+        }
+        if SelectedClass == 19{
+            var Image: UIImage = UIImage(named: "Diana")!
+            return Image
+        }
+        if SelectedClass == 20{
+            var Image: UIImage = UIImage(named: "Dr.Mundo")!
+            return Image
+        }
+        if SelectedClass == 21{
+            var Image: UIImage = UIImage(named: "Draven")!
+            return Image
+        }
+        if SelectedClass == 22{
+            var Image: UIImage = UIImage(named: "Ekko")!
+            return Image
+        }
+        if SelectedClass == 23{
+            var Image: UIImage = UIImage(named: "Elise")!
+            return Image
+        }
+        if SelectedClass == 24{
+            var Image: UIImage = UIImage(named: "Evelynn")!
+            return Image
+        }
+        if SelectedClass == 25{
+            var Image: UIImage = UIImage(named: "Ezreal")!
+            return Image
+        }
+        if SelectedClass == 26{
+            var Image: UIImage = UIImage(named: "Fiddlesticks")!
+            return Image
+        }
+        if SelectedClass == 27{
+            var Image: UIImage = UIImage(named: "Fiora")!
+            return Image
+        }
+        if SelectedClass == 28{
+            var Image: UIImage = UIImage(named: "Fizz")!
+            return Image
+        }
+        if SelectedClass == 29{
+            var Image: UIImage = UIImage(named: "Galio")!
+            return Image
+        }
+        if SelectedClass == 30{
+            var Image: UIImage = UIImage(named: "Gangplank")!
+            return Image
+        }
+        if SelectedClass == 31{
+            var Image: UIImage = UIImage(named: "Garen")!
+            return Image
+        }
+        if SelectedClass == 32{
+            var Image: UIImage = UIImage(named: "Gnar")!
+            return Image
+        }
+        if SelectedClass == 33{
+            var Image: UIImage = UIImage(named: "Gragas")!
+            return Image
+        }
+        if SelectedClass == 34{
+            var Image: UIImage = UIImage(named: "Graves")!
+            return Image
+        }
+        if SelectedClass == 35{
+            var Image: UIImage = UIImage(named: "Hecarim")!
+            return Image
+        }
+        if SelectedClass == 36{
+            var Image: UIImage = UIImage(named: "Heimerdinger")!
+            return Image
+        }
+        if SelectedClass == 37{
+            var Image: UIImage = UIImage(named: "Irelia")!
+            return Image
+        }
+        if SelectedClass == 38{
+            var Image: UIImage = UIImage(named: "Janna")!
+            return Image
+        }
+        if SelectedClass == 39{
+            var Image: UIImage = UIImage(named: "JarvanIV")!
+            return Image
+        }
+        if SelectedClass == 40{
+            var Image: UIImage = UIImage(named: "Jax")!
+            return Image
+        }
+        if SelectedClass == 41{
+            var Image: UIImage = UIImage(named: "Jayce")!
+            return Image
+        }
+        if SelectedClass == 42{
+            var Image: UIImage = UIImage(named: "Jinx")!
+            return Image
+        }
+        if SelectedClass == 43{
+            var Image: UIImage = UIImage(named: "Kalista")!
+            return Image
+        }
+        if SelectedClass == 44{
+            var Image: UIImage = UIImage(named: "Karma")!
+            return Image
+        }
+        if SelectedClass == 45{
+            var Image: UIImage = UIImage(named: "Karthus")!
+            return Image
+        }
+        if SelectedClass == 46{
+            var Image: UIImage = UIImage(named: "Kassadin")!
+            return Image
+        }
+        if SelectedClass == 47{
+            var Image: UIImage = UIImage(named: "Katarina")!
+            return Image
+        }
+        if SelectedClass == 48{
+            var Image: UIImage = UIImage(named: "Kayle")!
+            return Image
+        }
+        if SelectedClass == 49{
+            var Image: UIImage = UIImage(named: "Kennen")!
+            return Image
+        }
+        if SelectedClass == 50{
+            var Image: UIImage = UIImage(named: "Khazix")!
+            return Image
+        }
+        if SelectedClass == 51{
+            var Image: UIImage = UIImage(named: "KogMaw")!
+            return Image
+        }
+        if SelectedClass == 52{
+            var Image: UIImage = UIImage(named: "Leblanc")!
+            return Image
+        }
+        if SelectedClass == 53{
+            var Image: UIImage = UIImage(named: "Leesin")!
+            return Image
+        }
+        if SelectedClass == 54{
+            var Image: UIImage = UIImage(named: "Leona")!
+            return Image
+        }
+        if SelectedClass == 55{
+            var Image: UIImage = UIImage(named: "Lissandra")!
+            return Image
+        }
+        if SelectedClass == 56{
+            var Image: UIImage = UIImage(named: "Lucian")!
+            return Image
+        }
+        if SelectedClass == 57{
+            var Image: UIImage = UIImage(named: "Lulu")!
+            return Image
+        }
+        if SelectedClass == 58{
+            var Image: UIImage = UIImage(named: "Lux")!
+            return Image
+        }
+        if SelectedClass == 59{
+            var Image: UIImage = UIImage(named: "Malphite")!
+            return Image
+        }
+        if SelectedClass == 60{
+            var Image: UIImage = UIImage(named: "Malzahar")!
+            return Image
+        }
+        if SelectedClass == 61{
+            var Image: UIImage = UIImage(named: "Maokai")!
+            return Image
+        }
+        if SelectedClass == 62{
+            var Image: UIImage = UIImage(named: "MasterYi")!
+            return Image
+        }
+        if SelectedClass == 63{
+            var Image: UIImage = UIImage(named: "MissFortune")!
+            return Image
+        }
+        if SelectedClass == 64{
+            var Image: UIImage = UIImage(named: "MonkeyKing")!
+            return Image
+        }
+        if SelectedClass == 65{
+            var Image: UIImage = UIImage(named: "Mordekaiser")!
+            return Image
+        }
+        if SelectedClass == 66{
+            var Image: UIImage = UIImage(named: "Morgana")!
+            return Image
+        }
+        if SelectedClass == 67{
+            var Image: UIImage = UIImage(named: "Nami")!
+            return Image
+        }
+        if SelectedClass == 68{
+            var Image: UIImage = UIImage(named: "Nasus")!
+            return Image
+        }
+        if SelectedClass == 69{
+            var Image: UIImage = UIImage(named: "Nautilus")!
+            return Image
+        }
+        if SelectedClass == 70{
+            var Image: UIImage = UIImage(named: "Nidalee")!
+            return Image
+        }
+        if SelectedClass == 71{
+            var Image: UIImage = UIImage(named: "Nocturne")!
+            return Image
+        }
+        if SelectedClass == 72{
+            var Image: UIImage = UIImage(named: "Nunu")!
+            return Image
+        }
+        if SelectedClass == 73{
+            var Image: UIImage = UIImage(named: "Olaf")!
+            return Image
+        }
+        if SelectedClass == 74{
+            var Image: UIImage = UIImage(named: "Orianna")!
+            return Image
+        }
+        if SelectedClass == 75{
+            var Image: UIImage = UIImage(named: "Pantheon")!
+            return Image
+        }
+        if SelectedClass == 76{
+            var Image: UIImage = UIImage(named: "Poppy")!
+            return Image
+        }
+        if SelectedClass == 77{
+            var Image: UIImage = UIImage(named: "Quinn")!
+            return Image
+        }
+        if SelectedClass == 78{
+            var Image: UIImage = UIImage(named: "Rammus")!
+            return Image
+        }
+        if SelectedClass == 79{
+            var Image: UIImage = UIImage(named: "RekSai")!
+            return Image
+        }
+        if SelectedClass == 80{
+            var Image: UIImage = UIImage(named: "Renekton")!
+            return Image
+        }
+        if SelectedClass == 81{
+            var Image: UIImage = UIImage(named: "Rengar")!
+            return Image
+        }
+        if SelectedClass == 82{
+            var Image: UIImage = UIImage(named: "Riven")!
+            return Image
+        }
+        if SelectedClass == 83{
+            var Image: UIImage = UIImage(named: "Rumble")!
+            return Image
+        }
+        if SelectedClass == 84{
+            var Image: UIImage = UIImage(named: "Ryze")!
+            return Image
+        }
+        if SelectedClass == 85{
+            var Image: UIImage = UIImage(named: "Sejuani")!
+            return Image
+        }
+        if SelectedClass == 86{
+            var Image: UIImage = UIImage(named: "Shaco")!
+            return Image
+        }
+        if SelectedClass == 87{
+            var Image: UIImage = UIImage(named: "Shen")!
+            return Image
+        }
+        if SelectedClass == 88{
+            var Image: UIImage = UIImage(named: "Shyvana")!
+            return Image
+        }
+        if SelectedClass == 89{
+            var Image: UIImage = UIImage(named: "Singed")!
+            return Image
+        }
+        if SelectedClass == 90{
+            var Image: UIImage = UIImage(named: "Sion")!
+            return Image
+        }
+        if SelectedClass == 91{
+            var Image: UIImage = UIImage(named: "Sivir")!
+            return Image
+        }
+        if SelectedClass == 92{
+            var Image: UIImage = UIImage(named: "Skarner")!
+            return Image
+        }
+        if SelectedClass == 93{
+            var Image: UIImage = UIImage(named: "Sona")!
+            return Image
+        }
+        if SelectedClass == 94{
+            var Image: UIImage = UIImage(named: "Soraka")!
+            return Image
+        }
+        if SelectedClass == 95{
+            var Image: UIImage = UIImage(named: "Swain")!
+            return Image
+        }
+        if SelectedClass == 96{
+            var Image: UIImage = UIImage(named: "Syndra")!
+            return Image
+        }
+        if SelectedClass == 97{
+            var Image: UIImage = UIImage(named: "TahmKench")!
+            return Image
+        }
+        if SelectedClass == 98{
+            var Image: UIImage = UIImage(named: "Talon")!
+            return Image
+        }
+        if SelectedClass == 99{
+            var Image: UIImage = UIImage(named: "Taric")!
+            return Image
+        }
+        if SelectedClass == 100{
+            var Image: UIImage = UIImage(named: "Teemo")!
+            return Image
+        }
+        if SelectedClass == 101{
+            var Image: UIImage = UIImage(named: "Thresh")!
+            return Image
+        }
+        if SelectedClass == 102{
+            var Image: UIImage = UIImage(named: "Tristana")!
+            return Image
+        }
+        if SelectedClass == 103{
+            var Image: UIImage = UIImage(named: "Trundle")!
+            return Image
+        }
+        if SelectedClass == 104{
+            var Image: UIImage = UIImage(named: "Tryndamere")!
+            return Image
+        }
+        if SelectedClass == 105{
+            var Image: UIImage = UIImage(named: "TwistedFate")!
+            return Image
+        }
+        if SelectedClass == 106{
+            var Image: UIImage = UIImage(named: "Twitch")!
+            return Image
+        }
+        if SelectedClass == 107{
+            var Image: UIImage = UIImage(named: "Udyr")!
+            return Image
+        }
+        if SelectedClass == 108{
+            var Image: UIImage = UIImage(named: "Urgot")!
+            return Image
+        }
+        if SelectedClass == 109{
+            var Image: UIImage = UIImage(named: "Varus")!
+            return Image
+        }
+        if SelectedClass == 110{
+            var Image: UIImage = UIImage(named: "Vayne")!
+            return Image
+        }
+        if SelectedClass == 111{
+            var Image: UIImage = UIImage(named: "Veigar")!
+            return Image
+        }
+        if SelectedClass == 112{
+            var Image: UIImage = UIImage(named: "Velkoz")!
+            return Image
+        }
+        if SelectedClass == 113{
+            var Image: UIImage = UIImage(named: "Vi")!
+            return Image
+        }
+        if SelectedClass == 114{
+            var Image: UIImage = UIImage(named: "Victor")!
+            return Image
+        }
+        if SelectedClass == 115{
+            var Image: UIImage = UIImage(named: "Vladimir")!
+            return Image
+        }
+        if SelectedClass == 116{
+            var Image: UIImage = UIImage(named: "Volibear")!
+            return Image
+        }
+        if SelectedClass == 117{
+            var Image: UIImage = UIImage(named: "Warwick")!
+            return Image
+        }
+        if SelectedClass == 118{
+            var Image: UIImage = UIImage(named: "Xerath")!
+            return Image
+        }
+        if SelectedClass == 119{
+            var Image: UIImage = UIImage(named: "XinZhao")!
+            return Image
+        }
+        if SelectedClass == 120{
+            var Image: UIImage = UIImage(named: "Yasuo")!
+            return Image
+        }
+        if SelectedClass == 121{
+            var Image: UIImage = UIImage(named: "Yorick")!
+            return Image
+        }
+        if SelectedClass == 122{
+            var Image: UIImage = UIImage(named: "Zac")!
+            return Image
+        }
+        if SelectedClass == 123{
+            var Image: UIImage = UIImage(named: "Zed")!
+            return Image
+        }
+        if SelectedClass == 124{
+            var Image: UIImage = UIImage(named: "Ziggs")!
+            return Image
+        }
+        if SelectedClass == 125{
+            var Image: UIImage = UIImage(named: "Zilean")!
+            return Image
+        }
+        else{
+            var Image: UIImage = UIImage(named: "Zyra")!
+            return Image
+        }
+    }
+    
+    /*
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Get the new view controller using segue.destinationViewController.
+        // Pass the selected object to the new view controller.
+    }
+    */
+
+}
